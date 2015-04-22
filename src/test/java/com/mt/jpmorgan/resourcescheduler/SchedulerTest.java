@@ -27,7 +27,7 @@ public class SchedulerTest {
     @Test
     public void testSchedule() {
         System.out.println("--- Schedule Test ---");
-        Scheduler scheduler = Scheduler.getInstance(2, new DefaultSchedulerPriority(), new SimpleGateway());
+        Scheduler scheduler = Scheduler.getInstance(1, new DefaultSchedulerPriority(), new SimpleGateway());
         SchedulerMessage msg1 = new SimpleMessage(1);
         scheduler.schedule(msg1);
 

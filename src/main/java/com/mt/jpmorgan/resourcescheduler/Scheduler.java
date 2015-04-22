@@ -123,7 +123,7 @@ public class Scheduler {
                             )
                         );
                         activeExternalService++;                        
-                        logger.info(String.format(" ---> Message from Group %d Sent!", nextMessage.getGroupId()));
+                        logger.info(String.format(" ---> Message from Group %d Sent to the Gateway!", nextMessage.getGroupId()));
                     }
                 }
             }
