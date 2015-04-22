@@ -10,7 +10,7 @@ Resource Scheduler responsible for managing the interaction with an expensive ex
 # To test the project please:
 
 	1 - Compile:
-		mvn clean compile
+		mvn clean install
 		
 	2 - Execute:
 		mvn exec:java
