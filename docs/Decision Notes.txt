@@ -1,0 +1,38 @@
+1 - To be able to manage the availability of resources, the "Message.completed()" method need to notify back the scheduler of its completion.
+	For this notification to happen we need to extend the Message with a callback capability. So we'll introduce a "SchedulerMessage" interface 
+	that we'll extend the provided "Message" interface to receive a "Callback" interface.
+	The "Callback.onRequestComplete()" method will be called on the "Message.completed()" method.
+
+2 - To be able to change the prioritization algorithm, we need a strategy pattern for the prioritization.
+
+3 - For the default algorithm implementation we'll use 3 concurrent data structures:
+	Data structures:
+	3 Queues, 1 for ordering message group arrival and 1 for storing cancelled groups and one for storing the message by their arival order
+	1 Map for storing the messages grouped by their group ids.
+	
+	Execution steps:
+	1 - For each message received, verify if its groupId has not been cancelled
+	1.1 - If yes ignore it
+	1.2 - If not, verify if its the first message of its group to arrived
+	1.2.1 - If yes, add it to the storage Map grouped by its groupId and to the group ordering Queues
+	1.2.2 - If not, only add it to the storage Map grouped by its groupId
+
+	2 - For each request for a message to process, verify if we have no message remaining
+	2.1 - If yes, return null
+	2.2 - If not, iterate over the group ordering queue and verify if there's a message on the storage Map grouped under the groupId
+	2.2.1 - If yes, poll the message from its underlying Queue and return it
+	2.2.2 - If not, move to the next item of the group ordering Queue until we find one or run out of messages to be processed
+	
+	3 - As the message processed notification arrive, verify if there is no other message of it's group waiting to be processed
+	3.1 - If yes, remove it's group from the storage Map and from the group ordering Queue
+	
+	4 - As request for group cancellation arrive, remove the group from the storage Map and from the group ordering Queue and add it to cancelled groups Queue
+
+4 - For the alternative algorithm implementation we'll use 1 concurrent Map and process the messages as FIFO ignoring their group order arrival.
+
+5 - For the resource availability management, we'll create Callback interface implementation under the Scheduler
+	so that it can have access to the Scheduler internal fields (this is to avoid external interference with the Scheduler resource availability management)
+	
+	As the Gateway or external resources notify us about completion of the time consuming operations through the "Message.completed()" callback mechanism,
+	we notify the prioritization algorithm about it and decrease the active external resource number,
+	so that the processing thread can send the next message to the gateway.
